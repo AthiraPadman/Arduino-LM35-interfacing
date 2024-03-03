@@ -1,0 +1,62 @@
+/*
+Name          :Athira Padman V
+Date          :02/03/2024
+Description   :To develop the code in Arduino to interface an LM35 temperature sensor (Assume the sensor is connected to Arduino Analog pin A0) with an                Arduino Uno and control the onboard LED based on temperature readings.
+*/
+
+const int sensorPin = A0;      // Analog pin A0 for LM35 temperature sensor
+const int ledPin = 13;         // Onboard LED pin
+
+const int belowThresholdBlinkInterval = 250;  // Blink interval when temperature is below 30°C
+const int aboveThresholdBlinkInterval = 500;  // Blink interval when temperature is above 30°C
+const float temperatureThreshold = 30.0;      // Temperature threshold in degrees Celsius
+
+unsigned long previousMillis = 0;  // Variable to store the last time LED was updated
+int ledState = LOW;                // Current LED state (LOW = OFF, HIGH = ON)
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  unsigned long currentMillis = millis();  // Get the current time
+
+  // Read temperature from LM35 sensor
+  int sensorValue = analogRead(sensorPin);
+  float voltage = sensorValue * (5.0 / 1023.0);
+  float temperatureCelsius = voltage * 100.0;
+
+  // Print temperature to Serial Monitor
+  Serial.print("Temperature: ");
+  Serial.print(temperatureCelsius);
+  Serial.println(" °C");
+
+  // Check temperature and control LED based on conditions
+  if (temperatureCelsius < temperatureThreshold) {
+    blinkLED(belowThresholdBlinkInterval);
+  } else {
+    blinkLED(aboveThresholdBlinkInterval);
+  }
+}
+
+void blinkLED(int interval) {
+  unsigned long currentMillis = millis();
+
+  // Check if the specified interval has elapsed
+  if (currentMillis - previousMillis >= interval) {
+    // Save the last time LED was updated
+    previousMillis = currentMillis;
+
+    // Toggle LED state
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+
+    // Update LED state
+    digitalWrite(ledPin, ledState);
+  }
+}
+
